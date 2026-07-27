@@ -9,7 +9,7 @@
 			"command": "bun",
 			"args": ["mcp/jbcontext-server.ts"],
 			"cwd": ".",
-			"timeout": 5000
+			"startup_timeout": 1500
 		}
 	],
 	"hooks": [

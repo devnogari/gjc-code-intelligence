@@ -19,7 +19,7 @@ tells the agent when semantic search beats plain grep.
 
 - `jbcontext` installed at `~/.jbcontext/bin/jbcontext` and authenticated (`jbcontext login`)
 - `bun` on `PATH`
-- GJC with plugin-bundle MCP `timeout` support
+- GJC with plugin-bundle MCP `startup_timeout` support
 
 Both the MCP bridge and the index hook no-op when the binary is missing, so an unconfigured machine
 just loses the tools rather than failing session start.
@@ -42,5 +42,6 @@ GJC plugin-bundle MCP servers may only launch `node`/`bun` with a bundled script
 minimal environment. `mcp/jbcontext-server.ts` is a transparent stdio pass-through to
 `jbcontext mcp` that satisfies that policy without touching JSON-RPC framing.
 
-The manifest declares `"timeout": 5000` because the jbcontext handshake takes ~260ms, well past the
-default startup budget for plugin MCP servers.
+The manifest declares `"startup_timeout": 1500` because the jbcontext handshake takes ~260ms, past
+the default startup window for plugin MCP servers. That field raises only the handshake budget;
+request deadlines stay at the host default.

@@ -1,0 +1,28 @@
+{
+	"kind": "gajae-code-plugin",
+	"name": "jbcontext",
+	"version": "0.1.0",
+	"mcps": [
+		{
+			"name": "jbcontext",
+			"transport": "stdio",
+			"command": "bun",
+			"args": ["mcp/jbcontext-server.ts"],
+			"cwd": ".",
+			"timeout": 5000
+		}
+	],
+	"hooks": [
+		{
+			"name": "auto-index",
+			"event": "session_start",
+			"path": "hooks/auto-index.ts"
+		}
+	],
+	"system_appendix": [
+		{
+			"name": "jbcontext-usage",
+			"path": "prompts/system-appendix.md"
+		}
+	]
+}

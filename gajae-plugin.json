@@ -1,17 +1,7 @@
 {
 	"kind": "gajae-code-plugin",
 	"name": "jbcontext",
-	"version": "0.2.0",
-	"mcps": [
-		{
-			"name": "jbcontext",
-			"transport": "stdio",
-			"command": "bun",
-			"args": ["mcp/jbcontext-server.ts"],
-			"cwd": ".",
-			"startup_timeout": 1500
-		}
-	],
+	"version": "0.3.0",
 	"hooks": [
 		{
 			"name": "auto-index",

@@ -1,62 +1,63 @@
-# gjc-jbcontext
+# gjc-code-intelligence
 
-A [Gajae-Code](https://github.com/Yeachan-Heo/gajae-code) plugin bundle that wires
-[JetBrains Context](https://www.jetbrains.com/context/) (`jbcontext`) semantic code search into GJC.
+A [Gajae-Code](https://github.com/Yeachan-Heo/gajae-code) plugin bundle that gives GJC two complementary local code-intelligence tools:
 
-`jbcontext setup-agent` supports claude/codex/intellij/junie/generic, but not GJC. This bundle is
-the GJC equivalent: it exposes semantic search as a first-class tool, keeps the index fresh on every
-session start, and gets the agent to actually reach for it before grepping.
+- **jbcontext** semantic search for natural-language discovery.
+- **CodeGraph** structural queries for symbols, call relationships, impact, and context.
+
+The plugin keeps jbcontext indexed at session start and exposes both providers as first-class tools. Each provider remains optional: an unconfigured provider reports an actionable setup error while the other remains usable.
 
 ## Surfaces
 
 | Surface | What it does |
 | --- | --- |
-| `tools.code_search` | Semantic search over the jbcontext index, as an always-on tool. |
-| `hooks.auto-index` | On session start, re-indexes the repo detached so search answers from current HEAD. |
-| `system_appendix` | Reinforces when semantic search beats `search`/`find`/`read`. |
+| `tools.code_search` | Ranked semantic search over the jbcontext index. |
+| `tools.codegraph` | Read-only CodeGraph queries: `status`, `explore`, `search`, `callers`, `callees`, and `impact`. |
+| `hooks.auto-index` | Re-indexes jbcontext on session start when the CLI is available. |
+| `system_appendix` | Explains when semantic and structural search beat literal file search. |
 
 ## Requirements
 
-- `jbcontext` installed at `~/.jbcontext/bin/jbcontext` and authenticated (`jbcontext login`)
+### jbcontext
 
-The index hook no-ops when the binary is missing, and `code_search` reports what to run if the
-binary or index is absent, so an unconfigured machine degrades to plain `search`/`find` rather than
-failing session start.
+Install and authenticate [JetBrains Context](https://www.jetbrains.com/context/):
+
+```sh
+jbcontext login
+```
+
+The hook and `code_search` tool use `~/.jbcontext/bin/jbcontext`. If it is missing or the repository is not indexed, GJC falls back to its normal search tools with an actionable diagnostic.
+
+### CodeGraph
+
+Install [CodeGraph](https://github.com/colbymchenry/codegraph) and initialize the current project:
+
+```sh
+npm i -g @colbymchenry/codegraph
+cd your-project
+codegraph init
+```
+
+The `codegraph` tool only invokes read-only query commands. It never runs `init`, sync, install, or mutation commands. Without the CLI or a project index, it reports the exact setup step instead of failing session startup.
 
 ## Install
 
 ```sh
-gjc plugin install https://github.com/devnogari/gjc-jbcontext --user
+gjc plugin install https://github.com/devnogari/gjc-code-intelligence --user
 ```
 
-Use `--project` instead to scope it to a single repository. Verify with:
+Use `--project` to scope the plugin to one repository. Verify the loaded bundle with:
 
 ```sh
 gjc plugin list
 ```
 
-No MCP registration is needed — the tool loads in every session.
+No MCP registration is required; the tools load directly from the plugin bundle.
 
-## Why a tool and not an MCP server
+## Choosing a tool
 
-The obvious design is `mcps` in the manifest, pointing at `jbcontext mcp`. That works, but the
-agent then almost never calls it on its own.
+- Ask `code_search` when you need to locate code by behavior or concept and do not know the exact symbol or path.
+- Ask `codegraph` for structural questions such as “who calls this function?”, “what does this symbol call?”, or “what is the impact of changing it?”.
+- Use the built-in `search`/`find`/`read` tools for exact-token lookup, complete enumeration, or reading already-identified files.
 
-GJC's base system prompt maps code exploration onto `search`/`find`/`read` in its `<exploration>`
-and `<tool-priority>` blocks. A plugin `system_appendix` is appended *after* that and is explicitly
-marked lower-authority, so it cannot override the mapping. Measured on this bundle: appendix
-wording, the same text promoted to user-level `AGENTS.md`, and a maximally forceful "the first tool
-call MUST be..." phrasing all failed — the first call stayed `search` or `find` every time. Only
-naming the tool explicitly in the request worked.
-
-A tool *description* lives in the tool list, at the point where the model decides what to call, and
-that does compete. With the same appendix text and the tool surface instead of MCP, the first call
-becomes `code_search` on exploratory questions, while exact-symbol lookups still go to `search`.
-
-Two secondary benefits:
-
-- **No `--mcp-config` exclusivity.** A session started with `--mcp-config` skips plugin MCP servers
-  entirely; plugin tools load either way.
-- **No bridge script.** Plugin MCP stdio servers may only launch `node`/`bun` with a bundled script
-  under a minimal environment and a short startup budget, which needed a pass-through bridge plus a
-  `startup_timeout` field GJC does not ship. A custom tool just runs the CLI.
+Both integrations are local and read-only with respect to source code. Their indexes are maintained by their respective CLIs.

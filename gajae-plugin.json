@@ -1,12 +1,17 @@
 {
 	"kind": "gajae-code-plugin",
-	"name": "jbcontext",
-	"version": "0.4.0",
+	"name": "code-intelligence",
+	"version": "0.5.0",
 	"tools": [
 		{
 			"name": "code_search",
 			"path": "tools/code-search.ts",
 			"description": "Semantic code search over the jbcontext index"
+		},
+		{
+			"name": "codegraph",
+			"path": "tools/codegraph.ts",
+			"description": "Read-only structural code intelligence via CodeGraph"
 		}
 	],
 	"hooks": [

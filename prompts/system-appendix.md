@@ -1,16 +1,16 @@
-## Semantic code search
+## Code intelligence
 
-`code_search` searches this repository by meaning, over an index kept at HEAD.
+This plugin provides two complementary exploration tools:
 
-Reach for it before `search`, `find`, or `read` whenever you are locating code
-you have not already read in this session. A guessed grep pattern costs a round
-trip and usually the wrong file; one semantic query returns ranked files with
-line numbers and the surrounding source.
+- `code_search` uses jbcontext semantic search for behavior-oriented discovery.
+- `codegraph` uses the local CodeGraph index for structural questions: symbol lookup,
+  callers, callees, impact, and contextual exploration.
 
-Go straight to `search`/`find`/`read` when you already hold an exact token — a
-symbol from earlier output, a literal string, a path from a stack trace, a
-config key — or when you need a complete enumeration of matches. Semantic search
-ranks; it does not enumerate.
+Use `code_search` or `codegraph` before `search`, `find`, or `read` when the question
+is exploratory and the relevant code has not already been read. Prefer `codegraph`
+for call-graph and change-impact questions; prefer `code_search` for natural-language
+concept discovery. Use `search`/`find`/`read` for exact tokens, complete enumeration,
+or reading paths already identified.
 
-Query in full phrases describing behavior, one concept per call. Use
-`pathFilter` (repo-relative) to scope to a module.
+Both tools are optional local integrations. If a provider reports that its CLI or
+index is missing, follow its setup diagnostic or use the built-in file tools.

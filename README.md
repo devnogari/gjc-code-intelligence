@@ -12,7 +12,7 @@ The plugin keeps jbcontext indexed at session start and exposes both providers a
 | Surface | What it does |
 | --- | --- |
 | `tools.code_search` | Ranked semantic search over the jbcontext index. |
-| `tools.codegraph` | Read-only CodeGraph queries: `status`, `explore`, `search`, `callers`, `callees`, and `impact`. |
+| `tools.codegraph` | Read-only CodeGraph queries for `explore`, `node`, `query`, `files`, relationships, `impact`, `affected`, and `status`. |
 | `hooks.auto-index` | Re-indexes jbcontext on session start when the CLI is available. |
 | `system_appendix` | Explains when semantic and structural search beat literal file search. |
 
@@ -57,7 +57,8 @@ No MCP registration is required; the tools load directly from the plugin bundle.
 ## Choosing a tool
 
 - Ask `code_search` when you need to locate code by behavior or concept and do not know the exact symbol or path.
-- Ask `codegraph` for structural questions such as “who calls this function?”, “what does this symbol call?”, or “what is the impact of changing it?”.
+- Ask `codegraph` for structural questions: use `explore` for architecture and flows, `node` for a symbol/file's source and nearby relationships, and `callers`/`callees` for focused edges.
+- Use `impact` to estimate symbol blast radius and `affected` to identify tests affected by changed files; use `files` and `status` to inspect indexed project coverage.
 - Use the built-in `search`/`find`/`read` tools for exact-token lookup, complete enumeration, or reading already-identified files.
 
 Both integrations are local and read-only with respect to source code. Their indexes are maintained by their respective CLIs.

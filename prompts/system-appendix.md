@@ -14,6 +14,10 @@ indexed coverage. Use `code_search` only for behavior discovery when structure i
 unknown. Delegate implementation or bounded analysis to a subagent only after
 collecting relevant CodeGraph context; do not use a subagent as a substitute for
 the graph.
+The session-start hook also starts a project-scoped CodeGraph watcher when a
+`.codegraph` index exists. The watcher uses `codegraph serve --mcp --path <cwd>`;
+the MCP server mode supplies the watcher, but an MCP client registration is not
+required. Use `status` to verify that pending changes clear after the debounce.
 
 Both tools are optional local integrations. If a provider reports that its CLI or
 index is missing, follow its setup diagnostic or use the built-in file tools.

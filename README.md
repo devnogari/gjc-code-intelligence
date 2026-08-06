@@ -38,7 +38,7 @@ cd your-project
 codegraph init
 ```
 
-The `codegraph` tool only invokes read-only query commands. It never runs `init`, sync, install, or mutation commands. Without the CLI or a project index, it reports the exact setup step instead of failing session startup.
+The `codegraph` tool only invokes read-only query commands. It never runs `init`, sync, install, or mutation commands. Without the CLI or a project index, it reports the exact setup step instead of failing session startup. The session-start hook starts a project-scoped CodeGraph watcher with `codegraph serve --mcp --path <cwd>` when `.codegraph` exists; MCP client registration is not required for that watcher.
 
 ## Install
 

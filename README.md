@@ -60,5 +60,9 @@ No MCP registration is required; the tools load directly from the plugin bundle.
 - Ask `codegraph` for structural questions: use `explore` for architecture and flows, `node` for a symbol/file's source and nearby relationships, and `callers`/`callees` for focused edges.
 - Use `impact` to estimate symbol blast radius and `affected` to identify tests affected by changed files; use `files` and `status` to inspect indexed project coverage.
 - Use the built-in `search`/`find`/`read` tools for exact-token lookup, complete enumeration, or reading already-identified files.
+- Use `codegraph` first for unfamiliar or exploratory questions; call `explore` before reading files or delegating exploration.
+- Use `node`, `callers`, `callees`, `impact`, `affected`, `files`, and `status` for focused structural context.
+- Use `code_search` for behavior discovery when the structure or symbol is unknown.
+- Use built-in `search`/`find`/`read` for exact tokens or already-identified paths, not as a substitute for CodeGraph.
 
 Both integrations are local and read-only with respect to source code. Their indexes are maintained by their respective CLIs.

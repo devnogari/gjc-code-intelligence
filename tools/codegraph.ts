@@ -148,7 +148,7 @@ const factory = (pi: {
 	return {
 		name: "codegraph",
 		label: "CodeGraph",
-		description: "Read-only structural code intelligence via the local CodeGraph CLI. Use explore for architecture, node for exact symbol/file context, callers/callees for relationships, impact/affected for change scope, and files/status for index context.",
+		description: "Mandatory first tool for unfamiliar or exploratory code questions. MUST use explore before search/read when asking how code works, tracing flows, or surveying a subsystem; use node for exact symbol/file context, callers/callees for relationships, impact/affected for change scope, and files/status for index context. Do not delegate exploration to a subagent before querying CodeGraph. Read-only structural code intelligence via the local CodeGraph CLI.",
 		parameters,
 		strict: true,
 		async execute(_id: string, params: Params, _onUpdate: unknown, _ctx: unknown, signal?: AbortSignal) {

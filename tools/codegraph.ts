@@ -108,12 +108,15 @@ const factory = (pi: {
 	}
 
 	function render(params: Params, stdout: string): string {
-		if (params.op === "explore" || params.op === "node") return stdout.trim() || `No results for "${params.target?.trim() ?? ""}".`;
+		const output = stdout.trim();
+		if (params.op === "explore" || params.op === "node") return output || `No results for "${params.target?.trim() ?? ""}".`;
 		let data: any;
 		try {
-			data = JSON.parse(stdout);
+			data = JSON.parse(output);
 		} catch {
-			throw new Error(`codegraph ${params.op} returned unparseable output.`);
+			// CodeGraph may emit a human-readable diagnostic with exit code 0
+			// even when --json is set (for example, when a symbol is missing).
+			return output || `codegraph ${params.op} returned no output.`;
 		}
 		if (params.op === "search") {
 			const hits = data as Array<{ node: any }>;

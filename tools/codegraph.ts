@@ -28,27 +28,22 @@ const factory = (pi: {
 	) => Promise<{ stdout: string; stderr: string; code: number }>;
 }) => {
 	const z = pi.zod;
-	const parameters = z
-		.object({
-			op: z
-				.enum(["explore", "search", "node", "files", "callers", "callees", "impact", "affected", "status"])
-				.describe("CodeGraph query operation. status and files need no target; affected accepts file paths."),
-			target: z.string().optional().describe("Natural-language query, symbol name, or affected file path(s)."),
-			files: z.array(z.string().min(1)).min(1).optional().describe("Changed files for affected; overrides target when provided."),
-			limit: z.number().int().min(1).max(MAX_LIMIT).optional().describe("Search, callers, callees, or node file line limit."),
-			kind: z.string().min(1).optional().describe("Query kind filter, such as function or class."),
-			depth: z.number().int().min(1).max(MAX_DEPTH).optional().describe("Traversal depth for impact or affected."),
-			maxFiles: z.number().int().min(1).max(MAX_LIMIT).optional().describe("Maximum files for explore."),
-			file: z.string().min(1).optional().describe("Disambiguate node lookup to a file."),
-			offset: z.number().int().min(1).optional().describe("Node file mode starting line."),
-			symbolsOnly: z.boolean().optional().describe("Node file mode: return only symbols and dependents."),
-			filter: z.string().min(1).optional().describe("Files directory filter or affected test glob."),
-			pattern: z.string().min(1).optional().describe("Files glob pattern."),
-			format: z.enum(["tree", "flat", "grouped"]).optional().describe("Files output format."),
-			maxDepth: z.number().int().min(1).max(MAX_DEPTH).optional().describe("Files tree depth."),
-		})
-		.strict();
-	type Params = import("zod/v4").infer<typeof parameters>;
+	type Params = {
+		op: "explore" | "search" | "node" | "files" | "callers" | "callees" | "impact" | "affected" | "status";
+		target?: string;
+		files?: string[];
+		limit?: number;
+		kind?: string;
+		depth?: number;
+		maxFiles?: number;
+		file?: string;
+		offset?: number;
+		symbolsOnly?: boolean;
+		filter?: string;
+		pattern?: string;
+		format?: "tree" | "flat" | "grouped";
+		maxDepth?: number;
+	};
 
 	function bounded(value: number | undefined, fallback: number, max: number): number {
 		return Math.min(value ?? fallback, max);
@@ -152,7 +147,34 @@ const factory = (pi: {
 		name: "codegraph",
 		label: "CodeGraph",
 		description: "Mandatory first tool for unfamiliar or exploratory code questions. MUST use explore before search/read when asking how code works, tracing flows, or surveying a subsystem; use node for exact symbol/file context, callers/callees for relationships, impact/affected for change scope, and files/status for index context. Do not delegate exploration to a subagent before querying CodeGraph. Read-only structural code intelligence via the local CodeGraph CLI.",
-		parameters,
+		parameters: z.object({
+			op: z
+				.union([
+					z.literal("explore"),
+					z.literal("search"),
+					z.literal("node"),
+					z.literal("files"),
+					z.literal("callers"),
+					z.literal("callees"),
+					z.literal("impact"),
+					z.literal("affected"),
+					z.literal("status"),
+				])
+				.describe("CodeGraph query operation. status and files need no target; affected accepts file paths."),
+			target: z.string().describe("Natural-language query, symbol name, or affected file path(s).").optional(),
+			files: z.array(z.string().min(1)).min(1).describe("Changed files for affected; overrides target when provided.").optional(),
+			limit: z.number().int().min(1).max(MAX_LIMIT).describe("Search, callers, callees, or node file line limit.").optional(),
+			kind: z.string().min(1).describe("Query kind filter, such as function or class.").optional(),
+			depth: z.number().int().min(1).max(MAX_DEPTH).describe("Traversal depth for impact or affected.").optional(),
+			maxFiles: z.number().int().min(1).max(MAX_LIMIT).describe("Maximum files for explore.").optional(),
+			file: z.string().min(1).describe("Disambiguate node lookup to a file.").optional(),
+			offset: z.number().int().min(1).describe("Node file mode starting line.").optional(),
+			symbolsOnly: z.boolean().describe("Node file mode: return only symbols and dependents.").optional(),
+			filter: z.string().min(1).describe("Files directory filter or affected test glob.").optional(),
+			pattern: z.string().min(1).describe("Files glob pattern.").optional(),
+			format: z.union([z.literal("tree"), z.literal("flat"), z.literal("grouped")]).describe("Files output format.").optional(),
+			maxDepth: z.number().int().min(1).max(MAX_DEPTH).describe("Files tree depth.").optional(),
+		}),
 		strict: true,
 		async execute(_id: string, params: Params, _onUpdate: unknown, _ctx: unknown, signal?: AbortSignal) {
 			let result: { stdout: string; stderr: string; code: number };

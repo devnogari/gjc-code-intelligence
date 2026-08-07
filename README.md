@@ -54,6 +54,10 @@ gjc plugin list
 
 No MCP registration is required; the tools load directly from the plugin bundle.
 
+## Migration
+
+Delete the superseded standalone hook `~/.gjc/agent/hooks/jbcontext-index.ts` when installing this plugin. `hooks/auto-index.ts` replaces it. The old hook `await`s `jbcontext index` inside `session_start`, which runs inside GJC's 10s SDK lifecycle readiness window; with measured index times of 16.7s-39.7s it hard-fails session creation with `No ready SDK endpoint remains available.`
+
 ## Choosing a tool
 
 - Ask `code_search` when you need to locate code by behavior or concept and do not know the exact symbol or path.

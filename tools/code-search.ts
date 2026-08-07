@@ -43,29 +43,11 @@ const factory = (pi: {
 }) => {
 	const z = pi.zod;
 
-	const parameters = z
-		.object({
-			query: z
-				.string()
-				.min(1)
-				.describe(
-					"What the code does, as a natural-language phrase — 'where the session decides which messages to drop during compaction'. One concept per call. Bare keywords ('compaction', 'error') return noise.",
-				),
-			pathFilter: z
-				.string()
-				.optional()
-				.describe("Repo-relative path prefix to scope the search to one module, e.g. 'src/runtime-mcp'."),
-			limit: z
-				.number()
-				.int()
-				.min(1)
-				.max(MAX_LIMIT)
-				.optional()
-				.describe(`Max results (default ${DEFAULT_LIMIT}).`),
-		})
-		.strict();
-
-	type Params = import("zod/v4").infer<typeof parameters>;
+	type Params = {
+		query: string;
+		pathFilter?: string;
+		limit?: number;
+	};
 
 	/** Byte offset -> 1-indexed line number, so results are directly readable. */
 	async function lineAt(relativePath: string, byteOffset: number): Promise<number | null> {
@@ -129,7 +111,25 @@ const factory = (pi: {
 		label: "Code Search",
 		description:
 			"Semantic code search over this repository, indexed at HEAD. Call this FIRST when you need to locate, explain, investigate, or change code you have not already read in this session — before `search`, `find`, or `read`. Describe what the code does in a natural-language phrase; one call returns ranked files with line numbers and the surrounding source, where a guessed grep pattern would cost several round trips and usually the wrong file. Use `search`/`find` instead only when you already hold an exact token (a symbol from earlier output, a literal string, a path from a stack trace, a config key) or need a complete enumeration of matches — semantic search ranks, it does not enumerate.",
-		parameters,
+		parameters: z.object({
+			query: z
+				.string()
+				.min(1)
+				.describe(
+					"What the code does, as a natural-language phrase — 'where the session decides which messages to drop during compaction'. One concept per call. Bare keywords ('compaction', 'error') return noise.",
+				),
+			pathFilter: z
+				.string()
+				.describe("Repo-relative path prefix to scope the search to one module, e.g. 'src/runtime-mcp'.")
+				.optional(),
+			limit: z
+				.number()
+				.int()
+				.min(1)
+				.max(MAX_LIMIT)
+				.describe(`Max results (default ${DEFAULT_LIMIT}).`)
+				.optional(),
+		}),
 		strict: true,
 		async execute(_id: string, params: Params, _onUpdate: unknown, _ctx: unknown, signal?: AbortSignal) {
 			const args = [
